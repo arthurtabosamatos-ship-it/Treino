@@ -1,0 +1,799 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="theme-color" content="#0D6560" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0D1514" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Treino">
+<meta name="description" content="Plano de forca e corrida de 12 semanas, com timer de descanso e registro de cargas.">
+<title>Força e Corrida</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#F1F4F4; --surface:#FFFFFF; --surface-2:#E5EBEA; --sunken:#DCE4E3;
+  --ink:#12201F; --ink-2:#4C5D5B; --ink-3:#748584;
+  --line:#CFD9D8; --line-strong:#B3C2C0;
+  --accent:#0D6560; --accent-ink:#FFFFFF; --accent-soft:#D3E6E3; --accent-dim:#0A4F4B;
+  --timer:#B26A05; --timer-soft:#F6E6C9;
+  --ok:#2C7048; --warn:#9C6512; --crit:#A93429;
+  --crit-soft:#F6DDDA;
+  --shadow:0 1px 2px rgba(18,32,31,.06), 0 8px 24px -12px rgba(18,32,31,.18);
+  --radius:14px;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D1514; --surface:#151F1E; --surface-2:#1D2A28; --sunken:#101A19;
+    --ink:#E7EEEC; --ink-2:#9FB1AE; --ink-3:#7A8D8B;
+    --line:#293735; --line-strong:#3A4C4A;
+    --accent:#4CC0B4; --accent-ink:#08201E; --accent-soft:#17332F; --accent-dim:#68D4C8;
+    --timer:#F0A836; --timer-soft:#33260F;
+    --ok:#59B37F; --warn:#D9A24C; --crit:#E4776A;
+    --crit-soft:#3A1E1B;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -14px rgba(0,0,0,.7);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D1514; --surface:#151F1E; --surface-2:#1D2A28; --sunken:#101A19;
+  --ink:#E7EEEC; --ink-2:#9FB1AE; --ink-3:#7A8D8B;
+  --line:#293735; --line-strong:#3A4C4A;
+  --accent:#4CC0B4; --accent-ink:#08201E; --accent-soft:#17332F; --accent-dim:#68D4C8;
+  --timer:#F0A836; --timer-soft:#33260F;
+  --ok:#59B37F; --warn:#D9A24C; --crit:#E4776A;
+  --crit-soft:#3A1E1B;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -14px rgba(0,0,0,.7);
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:15px; line-height:1.5;
+  -webkit-text-size-adjust:100%;
+  padding-bottom:100px;
+}
+h1,h2,h3{font-family:"Archivo",Impact,sans-serif; text-wrap:balance; margin:0; letter-spacing:-.015em}
+button{font:inherit; color:inherit; cursor:pointer}
+:focus-visible{outline:2.5px solid var(--accent); outline-offset:2px; border-radius:4px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important}}
+
+.wrap{max-width:680px; margin:0 auto; padding:0 14px}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace; font-variant-numeric:tabular-nums}
+.eyebrow{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-3)}
+
+/* ---------- header ---------- */
+header{
+  position:sticky; top:0; z-index:40; background:var(--surface);
+  border-bottom:1px solid var(--line);
+}
+.hrow{display:flex; align-items:center; gap:10px; padding:9px 0}
+.brand{font-family:"Archivo",sans-serif; font-weight:800; font-size:16px; letter-spacing:-.02em; margin-right:auto}
+.brand span{color:var(--accent)}
+.iconbtn{
+  display:inline-flex; align-items:center; gap:6px; background:var(--surface-2);
+  border:1px solid var(--line); border-radius:999px; padding:7px 12px;
+  font-size:12px; font-weight:600; white-space:nowrap;
+}
+.iconbtn[aria-pressed="true"]{background:var(--accent); color:var(--accent-ink); border-color:var(--accent)}
+.dot{width:7px; height:7px; border-radius:50%; background:var(--ink-3); flex:none}
+.iconbtn[aria-pressed="true"] .dot{background:var(--accent-ink)}
+
+.weekbar{display:flex; align-items:center; gap:8px; padding:0 0 10px}
+.stepper{display:flex; align-items:center; background:var(--surface-2); border:1px solid var(--line); border-radius:999px; overflow:hidden}
+.stepper button{background:none; border:0; padding:8px 13px; font-size:17px; line-height:1; color:var(--ink-2)}
+.stepper button:active{background:var(--sunken)}
+.stepper .val{font-family:"IBM Plex Mono",monospace; font-size:12.5px; font-weight:600; padding:0 2px; min-width:88px; text-align:center}
+.phasechip{
+  font-size:11.5px; font-weight:600; padding:5px 11px; border-radius:999px;
+  background:var(--accent-soft); color:var(--accent-dim); border:1px solid transparent;
+}
+.phasechip.f4{background:var(--timer-soft); color:var(--timer)}
+
+/* ---------- tabs ---------- */
+nav.tabs{display:flex; gap:5px; overflow-x:auto; padding:0 0 9px; scrollbar-width:none}
+nav.tabs::-webkit-scrollbar{display:none}
+.tab{
+  flex:none; background:none; border:1px solid var(--line); border-radius:999px;
+  padding:7px 14px; font-size:13px; font-weight:600; color:var(--ink-2);
+}
+.tab[aria-selected="true"]{background:var(--ink); color:var(--bg); border-color:var(--ink)}
+
+/* ---------- cards ---------- */
+main{padding-top:16px}
+.card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden}
+.stack{display:flex; flex-direction:column; gap:12px}
+.sechead{display:flex; align-items:baseline; gap:9px; margin:24px 0 10px}
+.sechead h2{font-size:15px; font-weight:700}
+.sechead .eyebrow{margin-left:auto}
+
+.sessionhead{padding:15px 16px; background:var(--accent); color:var(--accent-ink)}
+.sessionhead h2{font-size:19px; font-weight:800; color:var(--accent-ink)}
+.sessionhead .eyebrow{color:var(--accent-ink); opacity:.72}
+.sessionhead p{margin:6px 0 0; font-size:12.5px; opacity:.9; line-height:1.45}
+
+.note{
+  display:flex; gap:9px; padding:11px 13px; border-radius:11px; font-size:12.5px; line-height:1.5;
+  background:var(--surface-2); color:var(--ink-2); border-left:3px solid var(--line-strong);
+}
+.note.warn{background:var(--timer-soft); color:var(--ink); border-left-color:var(--timer)}
+.note.crit{background:var(--crit-soft); color:var(--ink); border-left-color:var(--crit)}
+.note strong{color:var(--ink)}
+
+/* ---------- exercise ---------- */
+.ex{border-top:1px solid var(--line)}
+.ex:first-child{border-top:0}
+.exhead{
+  width:100%; display:grid; grid-template-columns:26px 1fr auto; gap:11px; align-items:center;
+  background:none; border:0; text-align:left; padding:13px 14px;
+}
+.exhead:active{background:var(--surface-2)}
+.num{
+  font-family:"IBM Plex Mono",monospace; font-size:11px; font-weight:600;
+  width:26px; height:26px; border-radius:8px; display:grid; place-items:center;
+  background:var(--surface-2); color:var(--ink-3);
+}
+.ex.done .num{background:var(--ok); color:#fff}
+.ex.main .num{background:var(--accent); color:var(--accent-ink)}
+.ex.main.done .num{background:var(--ok); color:#fff}
+.exhead > span:nth-child(2){min-width:0}
+.exname{display:block; font-weight:600; font-size:14px; line-height:1.3}
+.exmeta{display:block; font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--ink-3); margin-top:3px; letter-spacing:.01em}
+.chev{color:var(--ink-3); font-size:12px; transition:transform .18s}
+.ex.open .chev{transform:rotate(90deg)}
+
+.exbody{display:none; padding:0 14px 15px; flex-direction:column; gap:11px}
+.ex.open .exbody{display:flex}
+
+.tags{display:flex; flex-wrap:wrap; gap:5px}
+.tag{font-family:"IBM Plex Mono",monospace; font-size:10.5px; padding:3px 8px; border-radius:6px; background:var(--surface-2); color:var(--ink-2)}
+.tag.hi{background:var(--accent-soft); color:var(--accent-dim)}
+
+.setrow{display:grid; grid-template-columns:22px 1fr 1fr 1fr 40px; gap:7px; align-items:center}
+.setrow .sn{font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--ink-3)}
+.setrow input{
+  width:100%; background:var(--sunken); border:1px solid var(--line); border-radius:9px;
+  padding:9px 6px; font-family:"IBM Plex Mono",monospace; font-size:14px; text-align:center;
+  color:var(--ink); -moz-appearance:textfield;
+}
+.setrow input::-webkit-outer-spin-button,.setrow input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.setrow input::placeholder{color:var(--ink-3); font-size:12px}
+.tick{
+  width:40px; height:38px; border-radius:9px; border:1px solid var(--line);
+  background:var(--sunken); display:grid; place-items:center; font-size:15px; color:var(--ink-3);
+}
+.tick[aria-pressed="true"]{background:var(--ok); border-color:var(--ok); color:#fff}
+.colhead{display:grid; grid-template-columns:22px 1fr 1fr 1fr 40px; gap:7px}
+.colhead span{font-family:"IBM Plex Mono",monospace; font-size:9.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-3); text-align:center}
+
+.restbtn{
+  width:100%; background:var(--timer-soft); color:var(--timer); border:1px solid transparent;
+  border-radius:11px; padding:11px; font-weight:700; font-size:13.5px;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+}
+.restbtn:active{filter:brightness(.95)}
+.lastlog{font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--ink-3); line-height:1.5}
+.hint{font-size:12px; color:var(--ok); font-weight:600; display:flex; gap:7px; align-items:flex-start}
+
+/* ---------- generic list ---------- */
+.rows{display:flex; flex-direction:column}
+.row{display:flex; gap:11px; align-items:flex-start; padding:12px 14px; border-top:1px solid var(--line); font-size:13.5px}
+.row:first-child{border-top:0}
+.row .k{font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--ink-3); min-width:60px; padding-top:2px}
+.row .v{flex:1; line-height:1.45}
+.row .v b{font-weight:600}
+
+/* ---------- checkin / metrics ---------- */
+.pad{padding:14px}
+.scale{display:flex; gap:4px; flex-wrap:wrap}
+.scale button{
+  flex:1; min-width:26px; padding:8px 0; border:1px solid var(--line); background:var(--sunken);
+  border-radius:8px; font-family:"IBM Plex Mono",monospace; font-size:12.5px; color:var(--ink-2);
+}
+.scale button[aria-pressed="true"]{background:var(--accent); color:var(--accent-ink); border-color:var(--accent)}
+.scale.risk button[aria-pressed="true"]{background:var(--crit); border-color:var(--crit); color:#fff}
+.lbl{font-size:12.5px; font-weight:600; margin-bottom:7px; display:block}
+.sub{font-size:11.5px; color:var(--ink-3); margin-top:5px; line-height:1.45}
+
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:9px}
+.field label{display:block; font-size:11px; color:var(--ink-3); margin-bottom:4px; font-family:"IBM Plex Mono",monospace}
+.field input{
+  width:100%; background:var(--sunken); border:1px solid var(--line); border-radius:9px;
+  padding:10px; font-family:"IBM Plex Mono",monospace; font-size:14px; color:var(--ink);
+}
+.btn{
+  width:100%; background:var(--accent); color:var(--accent-ink); border:0; border-radius:11px;
+  padding:12px; font-weight:700; font-size:13.5px;
+}
+.btn.ghost{background:var(--surface-2); color:var(--ink); border:1px solid var(--line)}
+.btn.danger{background:var(--crit-soft); color:var(--crit); border:1px solid transparent}
+textarea{
+  width:100%; background:var(--sunken); border:1px solid var(--line); border-radius:9px;
+  padding:10px; font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--ink); min-height:80px;
+}
+
+/* ---------- timer ---------- */
+#timerbar{
+  position:fixed; left:0; right:0; bottom:0; z-index:60; background:var(--surface);
+  border-top:1px solid var(--line); box-shadow:0 -8px 28px -18px rgba(0,0,0,.6);
+  transform:translateY(110%); transition:transform .25s cubic-bezier(.2,.8,.3,1);
+}
+#timerbar.on{transform:none}
+.tinner{max-width:680px; margin:0 auto; padding:12px 14px; display:flex; align-items:center; gap:13px}
+#tprog{position:absolute; left:0; top:0; height:3px; background:var(--timer); width:100%}
+.tclock{font-family:"IBM Plex Mono",monospace; font-size:34px; font-weight:600; letter-spacing:-.02em; color:var(--timer); line-height:1}
+.tlabel{flex:1; min-width:0}
+.tlabel .n{font-size:12.5px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.tlabel .s{font-family:"IBM Plex Mono",monospace; font-size:10.5px; color:var(--ink-3); text-transform:uppercase; letter-spacing:.08em}
+.tbtn{background:var(--surface-2); border:1px solid var(--line); border-radius:10px; padding:9px 12px; font-size:12px; font-weight:600}
+.tbtn.stop{background:var(--crit-soft); color:var(--crit); border-color:transparent}
+.tbtn.add{color:var(--timer)}
+#timerbar.zero .tclock{animation:pulse .7s ease-in-out 4}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+
+.foot{padding:26px 0 10px; text-align:center; font-size:11.5px; color:var(--ink-3); line-height:1.6}
+.hide{display:none!important}
+</style>
+</head>
+<body>
+
+
+<header>
+  <div class="wrap">
+    <div class="hrow">
+      <div class="brand">Força e <span>Corrida</span></div>
+      <button class="iconbtn" id="wake" aria-pressed="false" title="Manter a tela ligada"><span class="dot"></span><span id="wakelbl">Tela</span></button>
+    </div>
+    <div class="weekbar">
+      <div class="stepper">
+        <button id="wprev" aria-label="Semana anterior">−</button>
+        <div class="val" id="wval">Semana 1</div>
+        <button id="wnext" aria-label="Próxima semana">+</button>
+      </div>
+      <div class="phasechip" id="phase">Fase I · Readaptação</div>
+    </div>
+    <nav class="tabs" id="tabs" role="tablist"></nav>
+  </div>
+</header>
+
+<main class="wrap" id="view"></main>
+
+<div class="wrap foot" id="foot"></div>
+
+<div id="timerbar" aria-live="polite">
+  <div id="tprog"></div>
+  <div class="tinner">
+    <div class="tclock mono" id="tclock">0:00</div>
+    <div class="tlabel"><div class="n" id="tname">Descanso</div><div class="s" id="tsub">em curso</div></div>
+    <button class="tbtn add" id="tadd">+30s</button>
+    <button class="tbtn stop" id="tstop">Parar</button>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+/* ============ PLANO ============ */
+const PHASES = [
+  {n:"Fase I",  name:"Readaptação",   weeks:[1,2,3,4],     reps:"8–10", rpe:"6–7", mult:1,
+   brief:"Reaprender os padrões e construir tolerância. Nenhuma série até a falha."},
+  {n:"Fase II", name:"Acúmulo",       weeks:[5,6,7,8],     reps:"6–8",  rpe:"7–8", mult:1,
+   brief:"Volume e massa magra. Entra o protocolo de impacto para o osso."},
+  {n:"Fase III",name:"Intensificação",weeks:[9,10,11,12],  reps:"4–6",  rpe:"8",   mult:1,
+   brief:"Magnitude de carga — é aqui que o estímulo ósseo fica mais forte."},
+  {n:"Fase IV", name:"Descarga",      weeks:[13],          reps:"5–6",  rpe:"6",   mult:.5,
+   brief:"Metade do volume, cargas mantidas. Semana de absorção antes do próximo bloco."}
+];
+
+const SESSIONS = {
+  A:{title:"Ênfase agachamento", bone:"Coluna lombar + colo do fêmur", impact:true,
+     warm:"5 min bicicleta ou caminhada inclinada · mobilidade torácica e de ombro · ativação de glúteo (ponte + abdução com miniband)",
+     ex:[
+      {id:"a1",n:"Agachamento livre com barra",main:true,sets:4,rest:150,cad:"3-0-1",
+       tip:"Descer até onde a lombar mantiver a curvatura neutra. Profundidade é consequência da mobilidade, não meta.",
+       err:"Joelho colapsando para dentro · perder a neutralidade lombar no fundo · subir com o quadril primeiro."},
+      {id:"a2",n:"Remada unilateral com halter",sets:3,reps:"8–10 por lado",rest:90,cad:"2-1-1",rpe:"7",
+       tip:"Progressão lenta no membro superior: incrementos de até 1 kg por vez nas primeiras 4 semanas."},
+      {id:"a3",n:"Desenvolvimento com halteres, pegada neutra",sets:3,reps:"8–10",rest:90,cad:"2-0-1",rpe:"7",
+       tip:"Costelas travadas, sem arquear a lombar para vencer a carga."},
+      {id:"a4",n:"Elevação pélvica com barra",sets:3,reps:"10–12",rest:90,cad:"2-1-1",rpe:"7",
+       tip:"Queixo para dentro, empurrar pelo calcanhar. Pausa de 1 s no topo."},
+      {id:"a5",n:"Cadeira extensora",sets:3,reps:"12–15",rest:60,cad:"2-1-2",rpe:"6–7",
+       tip:"Fortalecer o quadríceps ajuda o joelho. Se doer acima de 4/10, reduza a amplitude final."},
+      {id:"a6",n:"Prancha frontal",sets:3,reps:"30–45 s",rest:45,cad:"—",rpe:"—",core:true,
+       tip:"Glúteo contraído, costelas para baixo. Sem flexão de coluna sob carga."}
+     ]},
+  B:{title:"Ênfase levantamento terra", bone:"Coluna lombar + quadril", impact:false,
+     warm:"5 min de esteira leve · mobilidade de quadril · dobradiça sem carga (terra romeno com bastão, bom-dia)",
+     ex:[
+      {id:"b1",n:"Levantamento terra (convencional ou sumô)",main:true,sets:4,rest:180,cad:"2-0-1",
+       tip:"Barra rente à canela. O movimento é empurrar o chão, não puxar a barra.",
+       err:"Arredondar a coluna — inegociável aqui · hiperestender no topo · descer sem controle."},
+      {id:"b2",n:"Leg press",sets:3,reps:"10–12",rest:90,cad:"3-0-1",rpe:"7",
+       tip:"Não deixar a bacia sair do encosto no fundo."},
+      {id:"b3",n:"Puxada alta, pegada neutra",sets:3,reps:"8–10",rest:90,cad:"2-1-1",rpe:"7",
+       tip:"Puxar com o cotovelo, peito aberto. Pegada neutra poupa o ombro."},
+      {id:"b4",n:"Supino com halteres, pegada neutra",sets:3,reps:"10–12",rest:90,cad:"3-0-1",rpe:"6–7",
+       tip:"Amplitude PARCIAL: não descer até o alongamento máximo do peitoral. Com histórico de cirurgia na região, amplitude final sob carga não traz benefício.",
+       err:"Forçar a descida buscando alongamento · abrir demais os cotovelos."},
+      {id:"b5",n:"Crucifixo inverso ou face pull",sets:3,reps:"12–15",rest:60,cad:"2-1-2",rpe:"7",
+       tip:"Trabalho postural — vale mais controle que carga."},
+      {id:"b6",n:"Pallof press (anti-rotação)",sets:3,reps:"10 por lado",rest:45,cad:"—",rpe:"—",core:true,
+       tip:"Resistir à rotação sem girar o tronco. Substitui abdominal com flexão de coluna."}
+     ]},
+  C:{title:"Ênfase desenvolvimento + impacto", bone:"Coluna torácica + colo do fêmur", impact:true,
+     warm:"5 min de esteira leve · mobilidade de ombro e torácica · ativação de manguito com miniband",
+     ex:[
+      {id:"c1",n:"Desenvolvimento militar em pé com barra",main:true,sets:4,rest:150,cad:"2-0-1",
+       tip:"Em pé, com carga axial — é um dos melhores estímulos de coluna que existem.",
+       err:"Arquear a lombar para vencer a carga · destravar o abdome no topo."},
+      {id:"c2",n:"Agachamento búlgaro",sets:3,reps:"8–10 por lado",rest:90,cad:"3-0-1",rpe:"7",
+       tip:"Tronco levemente inclinado à frente reduz a carga no joelho."},
+      {id:"c3",n:"Terra romeno com halteres",sets:3,reps:"8–10",rest:90,cad:"3-1-1",rpe:"7",
+       tip:"Joelho quase estendido, quadril para trás. Descer até sentir o posterior, sem perder a lombar."},
+      {id:"c4",n:"Remada sentada, pegada neutra",sets:3,reps:"10–12",rest:90,cad:"2-1-1",rpe:"7",
+       tip:"Sem embalo de tronco. Escápula primeiro."},
+      {id:"c5",n:"Rosca direta",sets:2,reps:"12–15",rest:45,cad:"2-0-2",rpe:"6–7",
+       tip:"Membro superior com progressão gradual e monitorada."},
+      {id:"c6",n:"Tríceps na corda",sets:2,reps:"12–15",rest:45,cad:"2-0-2",rpe:"6–7",
+       tip:"Cotovelo fixo ao lado do corpo."},
+      {id:"c7",n:"Elevação de panturrilha em pé",sets:3,reps:"12–15",rest:45,cad:"2-1-2",rpe:"7",
+       tip:"Amplitude completa, pausa de 1 s no topo. Também é estímulo de impacto para o osso."}
+     ]}
+};
+
+const RUN = {
+  1:{f:"4 min corrida leve / 1 min caminhada",A:"20 min",B:"20 min",C:"20 min"},
+  2:{f:"4 min corrida leve / 1 min caminhada",A:"20 min",B:"25 min",C:"20 min"},
+  3:{f:"6 min corrida leve / 1 min caminhada",A:"22 min",B:"25 min",C:"20 min"},
+  4:{f:"6 min corrida leve / 1 min caminhada",A:"25 min",B:"28 min",C:"22 min"},
+  5:{f:"Contínua, ritmo conversável",A:"25 min",B:"28 min",C:"20 min"},
+  6:{f:"Contínua, ritmo conversável",A:"25 min",B:"30 min",C:"22 min"},
+  7:{f:"Contínua, ritmo conversável",A:"25 min",B:"30 min",C:"25 min"},
+  8:{f:"Contínua, ritmo conversável",A:"28 min",B:"32 min",C:"25 min"},
+  9:{f:"Contínua nas sessões A e B · tiros na C",A:"25 min contínua",B:"32 min contínua",C:"20 min · 5 × 1 min forte / 2 min leve"},
+ 10:{f:"Contínua nas sessões A e B · tiros na C",A:"25 min contínua",B:"35 min contínua",C:"20 min · 6 × 1 min forte / 2 min leve"},
+ 11:{f:"Contínua nas sessões A e B · tiros na C",A:"25 min contínua",B:"35 min contínua",C:"22 min · 7 × 1 min forte / 2 min leve"},
+ 12:{f:"Contínua nas sessões A e B · tiros na C",A:"25 min contínua",B:"35 min contínua",C:"22 min · 8 × 1 min forte / 2 min leve"},
+ 13:{f:"Descarga — só regenerativo",A:"20 min leve",B:"20 min leve",C:"20 min leve"}
+};
+
+function impactFor(w){
+  if(w<=4) return null;
+  if(w<=8) return "3 × 10 saltos verticais baixos, aterrissagem amortecida e silenciosa";
+  if(w<=12) return "4 × 10 saltos com altura maior, ou queda controlada de step de 20–30 cm";
+  return null;
+}
+
+const REDFLAGS = [
+  ["Braço","Inchaço, peso, formigamento ou aperto de anel/manga — compare sempre um braço com o outro."],
+  ["Osso","Dor óssea nova e persistente, principalmente em coluna, quadril ou costelas, que não se explica pelo treino. Isso não se trata como dor de treino: se avalia."],
+  ["Esforço","Dor torácica, tontura ou falta de ar desproporcional ao esforço."],
+  ["Joelho","Dor acima de 4/10 durante a corrida, ou que piora consistentemente nas 24 h seguintes."]
+];
+
+/* ============ ESTADO ============ */
+const KEY="forca-corrida-v1";
+let STORAGE_OK=true, MEM=null;
+function store(v){
+  if(v===undefined){
+    try{ return localStorage.getItem(KEY); }catch(e){ STORAGE_OK=false; return MEM; }
+  }
+  try{ localStorage.setItem(KEY,v); MEM=v; }catch(e){ STORAGE_OK=false; MEM=v; }
+}
+(function(){ try{ localStorage.setItem("__t","1"); localStorage.removeItem("__t"); }catch(e){ STORAGE_OK=false; } })();
+let S = load();
+function load(){
+  try{ const r=store(); if(r) return Object.assign(base(), JSON.parse(r)); }catch(e){}
+  return base();
+}
+function base(){ return {week:1, tab:"A", logs:{}, checkins:{}, metrics:[], open:{}}; }
+function save(){ store(JSON.stringify(S)); }
+
+function phaseOf(w){ return PHASES.find(p=>p.weeks.includes(w)) || PHASES[0]; }
+function today(){ const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function logKey(w,s,id){ return "w"+w+"-"+s+"-"+id; }
+function esc(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+function setsFor(ex,ph){ return Math.max(1, Math.round(ex.sets*ph.mult)); }
+function repsFor(ex,ph){ return ex.main ? ph.reps : ex.reps; }
+function rpeFor(ex,ph){ return ex.main ? ph.rpe : (ex.rpe||"—"); }
+
+/* progressão: última sessão registrada em semanas anteriores */
+function lastEntry(sess,id,week){
+  for(let w=week-1; w>=1; w--){
+    const e=S.logs[logKey(w,sess,id)];
+    if(e && e.sets && e.sets.some(x=>x&&x.kg)) return {w:w, e:e};
+  }
+  return null;
+}
+function progressionHint(ex,ph,prev){
+  if(!prev||!prev.e.sets) return null;
+  const rng=repsFor(ex,ph); const m=String(rng).match(/(\d+)\s*[–-]\s*(\d+)/);
+  if(!m) return null;
+  const top=parseInt(m[2],10);
+  const done=prev.e.sets.filter(x=>x&&x.kg&&x.reps);
+  if(done.length<2) return null;
+  const allTop=done.every(x=>parseFloat(x.reps)>=top);
+  const easy=done.every(x=>!x.rpe||parseFloat(x.rpe)<=7);
+  if(allTop&&easy){
+    const kg=Math.max.apply(null,done.map(x=>parseFloat(x.kg)||0));
+    const next=Math.round((kg*1.035)*2)/2;
+    return "Bateu o topo da faixa com folga na semana "+prev.w+". Suba para cerca de "+next.toString().replace(".",",")+" kg.";
+  }
+  return null;
+}
+
+/* ============ TIMER ============ */
+let T={id:null,left:0,total:0,name:""};
+let audio=null;
+function beep(times){
+  try{
+    audio = audio || new (window.AudioContext||window.webkitAudioContext)();
+    if(audio.state==="suspended") audio.resume();
+    for(let i=0;i<times;i++){
+      const o=audio.createOscillator(), g=audio.createGain();
+      const t0=audio.currentTime+i*0.28;
+      o.frequency.setValueAtTime(i===times-1?880:660,t0);
+      g.gain.setValueAtTime(0.0001,t0);
+      g.gain.exponentialRampToValueAtTime(0.22,t0+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001,t0+0.22);
+      o.connect(g); g.connect(audio.destination); o.start(t0); o.stop(t0+0.24);
+    }
+  }catch(e){}
+}
+function fmt(s){ const m=Math.floor(Math.abs(s)/60), r=Math.abs(s)%60; return (s<0?"−":"")+m+":"+String(r).padStart(2,"0"); }
+function startTimer(sec,name){
+  T.left=sec; T.total=sec; T.name=name||"Descanso";
+  document.getElementById("tname").textContent=T.name;
+  document.getElementById("timerbar").classList.add("on");
+  document.getElementById("timerbar").classList.remove("zero");
+  beep(1);
+  if(T.id) clearInterval(T.id);
+  paintTimer();
+  T.id=setInterval(()=>{
+    T.left--;
+    if(T.left===0){
+      beep(3);
+      if(navigator.vibrate) try{navigator.vibrate([220,120,220,120,340]);}catch(e){}
+      document.getElementById("timerbar").classList.add("zero");
+      document.getElementById("tsub").textContent="acabou — volte à barra";
+    }
+    if(T.left<=-30){ stopTimer(); return; }
+    paintTimer();
+  },1000);
+}
+function paintTimer(){
+  document.getElementById("tclock").textContent=fmt(T.left);
+  const pct=T.total>0?Math.max(0,Math.min(100,(T.left/T.total)*100)):0;
+  document.getElementById("tprog").style.width=pct+"%";
+  if(T.left>0) document.getElementById("tsub").textContent="descanso · "+T.total+"s prescritos";
+}
+function stopTimer(){
+  if(T.id) clearInterval(T.id); T.id=null;
+  document.getElementById("timerbar").classList.remove("on","zero");
+}
+document.getElementById("tstop").addEventListener("click",stopTimer);
+document.getElementById("tadd").addEventListener("click",()=>{ if(T.id){T.left+=30; T.total+=30; document.getElementById("timerbar").classList.remove("zero"); paintTimer();} });
+
+/* ============ WAKE LOCK ============ */
+let lock=null, wakeWanted=false;
+async function requestLock(){
+  if(!("wakeLock" in navigator)) return false;
+  try{ lock=await navigator.wakeLock.request("screen"); lock.addEventListener("release",()=>{lock=null;}); return true; }
+  catch(e){ return false; }
+}
+const wakeBtn=document.getElementById("wake"), wakeLbl=document.getElementById("wakelbl");
+wakeBtn.addEventListener("click",async()=>{
+  if(!("wakeLock" in navigator)){
+    wakeLbl.textContent="Sem suporte";
+    wakeBtn.title="Este navegador não permite. Aumente o tempo de bloqueio automático nos ajustes do celular.";
+    return;
+  }
+  if(wakeWanted){ wakeWanted=false; if(lock){try{await lock.release();}catch(e){}} lock=null; wakeBtn.setAttribute("aria-pressed","false"); wakeLbl.textContent="Tela"; }
+  else{ const ok=await requestLock(); wakeWanted=ok; wakeBtn.setAttribute("aria-pressed",ok?"true":"false"); wakeLbl.textContent=ok?"Tela ligada":"Falhou"; }
+});
+document.addEventListener("visibilitychange",()=>{ if(wakeWanted && document.visibilityState==="visible" && !lock) requestLock(); });
+
+/* ============ RENDER ============ */
+const TABS=[["A","Treino A"],["B","Treino B"],["C","Treino C"],["corrida","Corrida"],["registro","Registro"],["cuidados","Cuidados"]];
+
+function renderTabs(){
+  document.getElementById("tabs").innerHTML=TABS.map(([k,l])=>
+    '<button class="tab" role="tab" data-tab="'+k+'" aria-selected="'+(S.tab===k)+'">'+l+"</button>").join("");
+}
+function renderHeader(){
+  const ph=phaseOf(S.week);
+  document.getElementById("wval").textContent = S.week===13?"Descarga":"Semana "+S.week;
+  const chip=document.getElementById("phase");
+  chip.textContent=ph.n+" · "+ph.name;
+  chip.className="phasechip"+(ph.mult<1?" f4":"");
+}
+
+function render(){
+  renderHeader(); renderTabs();
+  const v=document.getElementById("view");
+  if(["A","B","C"].indexOf(S.tab)>=0) v.innerHTML=viewSession(S.tab);
+  else if(S.tab==="corrida") v.innerHTML=viewRun();
+  else if(S.tab==="registro") v.innerHTML=viewLog();
+  else v.innerHTML=viewCare();
+  document.getElementById("foot").innerHTML=
+    "Plano individualizado de 12 semanas + semana de descarga.<br>Registro salvo neste aparelho. Exporte de tempos em tempos na aba Registro.";
+  wire();
+}
+
+function viewSession(k){
+  const s=SESSIONS[k], ph=phaseOf(S.week), imp=s.impact?impactFor(S.week):null;
+  const ck=S.checkins[today()]||{};
+  let h='<div class="card"><div class="sessionhead"><div class="eyebrow">Sessão '+k+" · "+ph.n+'</div><h2>'+s.title+"</h2>"+
+        "<p>Sítio ósseo do dia: "+s.bone+". "+ph.brief+"</p></div></div>";
+
+  h+='<div class="stack" style="margin-top:12px">';
+
+  h+='<div class="card pad"><span class="lbl">Antes de começar — dor no joelho hoje (0–10)</span>'+
+     '<div class="scale risk" data-scale="joelho">'+[0,1,2,3,4,5,6,7,8,9,10].map(i=>
+       '<button data-v="'+i+'" aria-pressed="'+(ck.joelho===i)+'">'+i+"</button>").join("")+"</div>"+
+     '<div class="sub" id="kneemsg">'+kneeMsg(ck.joelho)+"</div></div>";
+
+  h+='<div class="card"><div class="row"><div class="k">Aquecimento</div><div class="v">'+s.warm+"</div></div></div>";
+
+  if(imp) h+='<div class="note warn"><div><strong>Protocolo de impacto ósseo</strong> — logo após o aquecimento: '+imp+
+    ". Interrompa se a dor no joelho passar de 4/10.</div></div>";
+
+  h+='<div class="card">';
+  s.ex.forEach((ex,i)=>{
+    const key=logKey(S.week,k,ex.id), e=S.logs[key]||{sets:[]};
+    const nsets=setsFor(ex,ph), reps=repsFor(ex,ph), rpe=rpeFor(ex,ph);
+    const doneAll=e.sets&&e.sets.filter(x=>x&&x.tick).length>=nsets;
+    const isOpen=!!S.open[key];
+    const prev=lastEntry(k,ex.id,S.week);
+    const hint=progressionHint(ex,ph,prev);
+
+    h+='<div class="ex'+(ex.main?" main":"")+(doneAll?" done":"")+(isOpen?" open":"")+'" data-key="'+key+'">';
+    h+='<button class="exhead" data-toggle="'+key+'" aria-expanded="'+isOpen+'">'+
+       '<span class="num">'+(doneAll?"✓":(i+1))+"</span>"+
+       '<span><span class="exname">'+esc(ex.n)+'</span><span class="exmeta">'+nsets+" × "+reps+"  ·  "+ex.rest+"s  ·  RPE "+rpe+"</span></span>"+
+       '<span class="chev">▶</span></button>';
+
+    h+='<div class="exbody">';
+    h+='<div class="tags"><span class="tag'+(ex.main?" hi":"")+'">'+(ex.main?"Estruturante":(ex.core?"Core":"Acessório"))+"</span>"+
+       '<span class="tag">Cadência '+ex.cad+'</span><span class="tag">Descanso '+ex.rest+"s</span></div>";
+    if(prev) h+='<div class="lastlog">Semana '+prev.w+": "+prev.e.sets.filter(x=>x&&x.kg).map(x=>x.kg+" kg × "+(x.reps||"?")).join("  ·  ")+"</div>";
+    if(hint) h+='<div class="hint"><span>↑</span><span>'+hint+"</span></div>";
+
+    h+='<div class="colhead"><span></span><span>kg</span><span>reps</span><span>RPE</span><span>ok</span></div>';
+    for(let si=0; si<nsets; si++){
+      const st=(e.sets&&e.sets[si])||{};
+      h+='<div class="setrow"><span class="sn">'+(si+1)+"</span>"+
+         '<input type="number" inputmode="decimal" step="0.5" placeholder="—" value="'+(st.kg||"")+'" data-f="kg" data-k="'+key+'" data-i="'+si+'">'+
+         '<input type="number" inputmode="numeric" placeholder="'+String(reps).replace(/\s*por lado/,"")+'" value="'+(st.reps||"")+'" data-f="reps" data-k="'+key+'" data-i="'+si+'">'+
+         '<input type="number" inputmode="decimal" step="0.5" placeholder="'+String(rpe).replace("–","-")+'" value="'+(st.rpe||"")+'" data-f="rpe" data-k="'+key+'" data-i="'+si+'">'+
+         '<button class="tick" data-tick="'+key+'" data-i="'+si+'" data-rest="'+ex.rest+'" data-name="'+esc(ex.n)+'" aria-pressed="'+(!!st.tick)+'">✓</button></div>';
+    }
+    h+='<button class="restbtn" data-rest="'+ex.rest+'" data-name="'+esc(ex.n)+'">⏱ Descansar '+ex.rest+"s</button>";
+    h+='<div class="note"><div><strong>Técnica.</strong> '+ex.tip+(ex.err?" <strong>Erros:</strong> "+ex.err:"")+"</div></div>";
+    h+="</div></div>";
+  });
+  h+="</div>";
+
+  const r=RUN[S.week];
+  h+='<div class="card"><div class="sechead pad" style="margin:0"><h2>Corrida de hoje</h2></div>'+
+     '<div class="rows"><div class="row"><div class="k">Duração</div><div class="v"><b>'+r[k]+"</b></div></div>"+
+     '<div class="row"><div class="k">Formato</div><div class="v">'+r.f+"</div></div>"+
+     '<div class="row"><div class="k">Quando</div><div class="v">Sempre <b>depois</b> da musculação. Correr antes compromete a carga nos levantamentos — que é o estímulo ósseo que não pode ser sacrificado.</div></div></div></div>';
+
+  h+="</div>";
+  return h;
+}
+
+function kneeMsg(v){
+  if(v===undefined||v===null) return "Marque antes de iniciar. É o dado que decide se a corrida do dia se mantém.";
+  if(v<=3) return "Faixa esperada para artralgia induzida por medicação. Siga o plano — o movimento tende a aliviar.";
+  if(v<=5) return "Atenção: troque a corrida de rua por esteira e reduza a amplitude final na cadeira extensora.";
+  return "Suspenda a corrida e o impacto hoje. Mantenha a musculação em amplitude confortável. Se persistir por duas sessões, fale com o médico que acompanha o caso.";
+}
+
+function viewRun(){
+  let h='<div class="sechead"><h2>Progressão da corrida</h2><span class="eyebrow">12 semanas</span></div><div class="card"><div class="rows">';
+  for(let w=1; w<=13; w++){
+    const r=RUN[w], cur=w===S.week;
+    h+='<div class="row"'+(cur?' style="background:var(--accent-soft)"':"")+'><div class="k">'+(w===13?"Descarga":"Sem "+w)+"</div>"+
+       '<div class="v"><b>A</b> '+r.A+" · <b>B</b> "+r.B+" · <b>C</b> "+r.C+'<div class="sub">'+r.f+"</div></div></div>";
+  }
+  h+="</div></div>";
+  h+='<div class="note warn" style="margin-top:12px"><div><strong>Regra que não se quebra:</strong> nunca aumentar mais de 10% do volume semanal. Rua e esteira alternadas — a esteira reduz a carga de impacto no joelho e serve de válvula nos dias de dor.</div></div>';
+
+  h+='<div class="sechead"><h2>Impacto ósseo</h2><span class="eyebrow">a partir da semana 5</span></div><div class="card"><div class="rows">'+
+     '<div class="row"><div class="k">Sem 1–4</div><div class="v">Nenhum salto. Apenas a corrida — a base precisa estar consolidada primeiro.</div></div>'+
+     '<div class="row"><div class="k">Sem 5–8</div><div class="v">3 × 10 saltos verticais baixos, aterrissagem amortecida e silenciosa. Sessões A e C.</div></div>'+
+     '<div class="row"><div class="k">Sem 9–12</div><div class="v">4 × 10 saltos com altura maior, ou queda controlada de step de 20–30 cm. Sessões A e C.</div></div></div></div>';
+  h+='<div class="note" style="margin-top:12px"><div>Impacto é o complemento da carga para a densidade no colo do fêmur. Carga alta dá magnitude; o salto dá taxa. O osso responde aos dois.</div></div>';
+  return h;
+}
+
+function viewLog(){
+  const m=S.metrics[S.metrics.length-1]||{};
+  let h='<div class="sechead"><h2>Medidas do mês</h2><span class="eyebrow">'+S.metrics.length+" registros</span></div>";
+  h+='<div class="card pad"><div class="grid2">'+
+     f("peso","Peso (kg)")+f("cintura","Cintura (cm)")+f("quadril","Quadril (cm)")+f("coxa","Coxa (cm)")+
+     f("bracoD","Braço direito (cm)")+f("bracoE","Braço esquerdo (cm)")+
+     "</div>"+
+     '<div class="note crit" style="margin-top:12px"><div><strong>Os dois braços, sempre.</strong> Medir no mesmo ponto marcado e comparar um com o outro é a vigilância objetiva de assimetria — vale mais que qualquer sensação.</div></div>'+
+     '<button class="btn" id="savemetric" style="margin-top:12px">Salvar medidas de hoje</button></div>';
+
+  if(S.metrics.length){
+    h+='<div class="sechead"><h2>Histórico</h2></div><div class="card"><div class="rows">';
+    S.metrics.slice().reverse().forEach(x=>{
+      const dif=(x.bracoD&&x.bracoE)?Math.abs(parseFloat(x.bracoD)-parseFloat(x.bracoE)).toFixed(1):null;
+      h+='<div class="row"><div class="k">'+x.data.slice(5).replace("-","/")+'</div><div class="v mono" style="font-size:12px">'+
+         [x.peso&&x.peso+" kg",x.cintura&&"cintura "+x.cintura,x.quadril&&"quadril "+x.quadril,x.coxa&&"coxa "+x.coxa].filter(Boolean).join(" · ")+
+         (dif!==null?'<div class="sub">braços '+x.bracoD+" / "+x.bracoE+" cm · diferença "+dif+" cm"+(parseFloat(dif)>=2?" — procure o médico":"")+"</div>":"")+
+         "</div></div>";
+    });
+    h+="</div></div>";
+  }
+
+  const n=Object.keys(S.logs).filter(k=>S.logs[k].sets&&S.logs[k].sets.some(x=>x&&x.kg)).length;
+  h+='<div class="sechead"><h2>Backup do registro</h2><span class="eyebrow">'+n+" exercícios com carga</span></div>";
+  if(!STORAGE_OK) h+='<div class="note crit" style="margin-bottom:12px"><div><strong>Este navegador não está guardando os dados.</strong> O registro vale só enquanto a página estiver aberta. Exporte o backup ao terminar o treino, ou abra o app pelo link publicado em vez do arquivo salvo.</div></div>';
+  h+='<div class="card pad"><div class="stack">'+
+     '<button class="btn ghost" id="expcsv">Exportar planilha para o médico (CSV)</button>'+
+     '<button class="btn ghost" id="expjson">Baixar backup completo (JSON)</button>'+
+     '<div class="sub">O registro fica salvo apenas neste aparelho e neste navegador. Limpar os dados do site apaga tudo — exporte o backup uma vez por mês.</div>'+
+     '<textarea id="impbox" placeholder="Cole aqui um backup JSON para restaurar"></textarea>'+
+     '<button class="btn ghost" id="impbtn">Restaurar backup colado</button>'+
+     "</div></div>";
+  return h;
+  function f(k,l){ return '<div class="field"><label>'+l+'</label><input type="number" inputmode="decimal" step="0.1" id="m_'+k+'" value="'+(m[k]||"")+'"></div>'; }
+}
+
+function viewCare(){
+  let h='<div class="sechead"><h2>Parar e procurar o médico</h2><span class="eyebrow">sinais de alarme</span></div>';
+  h+='<div class="card"><div class="rows">'+REDFLAGS.map(([k,v])=>
+      '<div class="row"><div class="k">'+k+'</div><div class="v">'+v+"</div></div>").join("")+"</div></div>";
+
+  h+='<div class="sechead"><h2>Mobilidade diária</h2><span class="eyebrow">10 min · todo dia</span></div>';
+  h+='<div class="card"><div class="rows">'+
+     '<div class="row"><div class="k">1</div><div class="v">Abertura torácica no rolo — 2 min</div></div>'+
+     '<div class="row"><div class="k">2</div><div class="v">Mobilidade de ombro em amplitude confortável, sem forçar o repuxamento — 3 min</div></div>'+
+     '<div class="row"><div class="k">3</div><div class="v">Mobilização suave da cicatriz — 3 min</div></div>'+
+     '<div class="row"><div class="k">4</div><div class="v">Deslizamento nervoso, se houver formigamento — 2 min</div></div></div></div>';
+  h+='<div class="note" style="margin-top:12px"><div>É o trabalho que ataca o repuxamento. Vale uma avaliação com <strong>fisioterapeuta especializado em cicatriz e fáscia</strong> — não se resolve com alongamento genérico.</div></div>';
+
+  h+='<div class="sechead"><h2>Nutrição — as quatro âncoras</h2></div>';
+  h+='<div class="card"><div class="rows">'+
+     '<div class="row"><div class="k">Calorias</div><div class="v"><b>1.900–2.000 kcal/dia.</b> Manutenção ou déficit mínimo. Nunca abaixo de 1.700 — restrição marcada agrava perda óssea, fadiga e perda de massa magra.</div></div>'+
+     '<div class="row"><div class="k">Proteína</div><div class="v"><b>120–145 g/dia</b>, distribuídos em 4 refeições de 30–40 g. Três refeições não fecham a meta.</div></div>'+
+     '<div class="row"><div class="k">Cálcio</div><div class="v"><b>1.000–1.200 mg/dia.</b> Com medicação óssea contínua, cálcio e vitamina D adequados são condição de segurança do tratamento, não detalhe. O multivitamínico costuma cobrir pouco — leve ao médico.</div></div>'+
+     '<div class="row"><div class="k">Creatina</div><div class="v"><b>3–5 g todo dia</b>, inclusive sem treino. Whey deixa de ser eventual e vira ferramenta para fechar a proteína.</div></div></div></div>';
+  h+='<div class="note warn" style="margin-top:12px"><div>Orientação geral, não prescrição. O acompanhamento com nutricionista — de preferência com experiência em nutrição clínica — é a maior lacuna do quadro hoje.</div></div>';
+
+  h+='<div class="sechead"><h2>O que medir de verdade</h2><span class="eyebrow">em ordem de importância</span></div>';
+  h+='<div class="card"><div class="rows">'+
+     ["Densitometria óssea estável ou melhor, no intervalo definido pelo médico",
+      "Carga total movimentada em agachamento, terra e desenvolvimento",
+      "Dor articular e rigidez matinal",
+      "Fadiga",
+      "Circunferência de cintura",
+      "Peso — por último, e sem drama"].map((t,i)=>
+      '<div class="row"><div class="k">'+(i+1)+'</div><div class="v">'+t+"</div></div>").join("")+"</div></div>";
+  h+='<div class="note" style="margin-top:12px"><div><strong>Revisão a cada 4 semanas.</strong> Ajustar se a carga não subir por duas semanas seguidas, se a dor no joelho passar de 4/10 no treino, se a fadiga não ceder até a semana 6, ou se o peso cair mais de 0,5 kg por semana — o que indica déficit excessivo e pede aumento calórico.</div></div>';
+  return h;
+}
+
+/* ============ EVENTOS ============ */
+function wire(){
+  document.querySelectorAll("[data-tab]").forEach(b=>b.addEventListener("click",()=>{S.tab=b.dataset.tab; save(); render(); window.scrollTo(0,0);}));
+
+  document.querySelectorAll("[data-toggle]").forEach(b=>b.addEventListener("click",()=>{
+    const k=b.dataset.toggle; S.open[k]=!S.open[k]; save();
+    const el=document.querySelector('.ex[data-key="'+k+'"]');
+    el.classList.toggle("open",!!S.open[k]); b.setAttribute("aria-expanded",!!S.open[k]);
+  }));
+
+  document.querySelectorAll(".setrow input").forEach(inp=>inp.addEventListener("change",()=>{
+    const k=inp.dataset.k, i=+inp.dataset.i, f=inp.dataset.f;
+    S.logs[k]=S.logs[k]||{sets:[]}; S.logs[k].sets[i]=S.logs[k].sets[i]||{};
+    S.logs[k].sets[i][f]=inp.value; S.logs[k].data=today(); save();
+  }));
+
+  document.querySelectorAll("[data-tick]").forEach(b=>b.addEventListener("click",()=>{
+    const k=b.dataset.tick, i=+b.dataset.i;
+    S.logs[k]=S.logs[k]||{sets:[]}; S.logs[k].sets[i]=S.logs[k].sets[i]||{};
+    const now=!S.logs[k].sets[i].tick;
+    S.logs[k].sets[i].tick=now; S.logs[k].data=today(); save();
+    b.setAttribute("aria-pressed",now);
+    if(now) startTimer(+b.dataset.rest, b.dataset.name);
+  }));
+
+  document.querySelectorAll(".restbtn").forEach(b=>b.addEventListener("click",()=>startTimer(+b.dataset.rest,b.dataset.name)));
+
+  const sc=document.querySelector('[data-scale="joelho"]');
+  if(sc) sc.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{
+    const v=+b.dataset.v, d=today();
+    S.checkins[d]=S.checkins[d]||{}; S.checkins[d].joelho=v; save();
+    sc.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b));
+    document.getElementById("kneemsg").textContent=kneeMsg(v);
+  }));
+
+  const sm=document.getElementById("savemetric");
+  if(sm) sm.addEventListener("click",()=>{
+    const rec={data:today()};
+    ["peso","cintura","quadril","coxa","bracoD","bracoE"].forEach(k=>{
+      const el=document.getElementById("m_"+k); if(el&&el.value) rec[k]=el.value;
+    });
+    if(Object.keys(rec).length<2){ sm.textContent="Preencha ao menos um campo"; setTimeout(()=>sm.textContent="Salvar medidas de hoje",1600); return; }
+    S.metrics=S.metrics.filter(x=>x.data!==rec.data); S.metrics.push(rec); save(); render();
+  });
+
+  const ec=document.getElementById("expcsv"); if(ec) ec.addEventListener("click",()=>exportFile("csv",ec));
+  const ej=document.getElementById("expjson"); if(ej) ej.addEventListener("click",()=>exportFile("json",ej));
+  const ib=document.getElementById("impbtn");
+  if(ib) ib.addEventListener("click",()=>{
+    const t=document.getElementById("impbox").value.trim();
+    if(!t) return;
+    try{ const o=JSON.parse(t); if(!o.logs) throw 0; S=Object.assign(base(),o); save(); render(); }
+    catch(e){ ib.textContent="Backup inválido — confira o texto colado"; setTimeout(()=>ib.textContent="Restaurar backup colado",2200); }
+  });
+}
+
+function buildCsv(){
+  const rows=[["semana","sessao","exercicio","serie","kg","reps","rpe","data"]];
+  Object.keys(S.logs).forEach(k=>{
+    const m=k.match(/^w(\d+)-([ABC])-(\w+)$/); if(!m) return;
+    const sess=SESSIONS[m[2]]; const ex=sess&&sess.ex.find(e=>e.id===m[3]); if(!ex) return;
+    (S.logs[k].sets||[]).forEach((st,i)=>{
+      if(!st||(!st.kg&&!st.reps)) return;
+      rows.push([m[1],m[2],ex.n,i+1,st.kg||"",st.reps||"",st.rpe||"",S.logs[k].data||""]);
+    });
+  });
+  rows.push([]); rows.push(["medidas"]); rows.push(["data","peso","cintura","quadril","coxa","braco_dir","braco_esq"]);
+  S.metrics.forEach(x=>rows.push([x.data,x.peso||"",x.cintura||"",x.quadril||"",x.coxa||"",x.bracoD||"",x.bracoE||""]));
+  rows.push([]); rows.push(["dor_joelho_0a10"]); rows.push(["data","joelho"]);
+  Object.keys(S.checkins).sort().forEach(d=>{ if(S.checkins[d].joelho!==undefined) rows.push([d,S.checkins[d].joelho]); });
+  return rows.map(r=>r.map(c=>/[",;\n]/.test(String(c))?'"'+String(c).replace(/"/g,'""')+'"':c).join(";")).join("\n");
+}
+
+async function exportFile(kind,btn){
+  const label=btn.textContent;
+  const dl = window.claude && window.claude.use ? await window.claude.use("downloads") : null;
+  const name = kind==="csv" ? "registro-treino-"+today()+".csv" : "registro-backup-"+today()+".json";
+  const data = kind==="csv" ? "﻿"+buildCsv() : JSON.stringify(S,null,1);
+  if(!dl){
+    try{
+      const blob=new Blob([data],{type:kind==="csv"?"text/csv;charset=utf-8":"application/json"});
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement("a"); a.href=url; a.download=name;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url),4000);
+      btn.textContent="Arquivo gerado";
+    }catch(e1){
+      try{ await navigator.clipboard.writeText(data); btn.textContent="Copiado — cole em um arquivo"; }
+      catch(e2){ btn.textContent="Não foi possível exportar aqui"; }
+    }
+    setTimeout(()=>btn.textContent=label,2600); return;
+  }
+  try{ await dl.save({filename:name,data:data}); btn.textContent="Salvo"; }
+  catch(err){
+    const c=err&&err.code;
+    btn.textContent = c==="declined" ? "Cancelado" : c==="rate_limited" ? "Aguarde um instante" : "Não deu para salvar";
+  }
+  setTimeout(()=>btn.textContent=label,2600);
+}
+
+document.getElementById("wprev").addEventListener("click",()=>{ S.week=Math.max(1,S.week-1); save(); render(); });
+document.getElementById("wnext").addEventListener("click",()=>{ S.week=Math.min(13,S.week+1); save(); render(); });
+
+render();
+</script>
+
+</body>
+</html>
